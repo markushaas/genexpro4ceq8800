@@ -1,0 +1,38 @@
+#!/bin/bash
+## renames all *.txt files in a directory to *.ceqfrag
+
+## Copyright notice
+## Copyright 2015 Markus Haas
+
+## Statement of copying permission
+## This file is part of genexpro4ceq8800.
+## 
+##     genexpro4ceq8800 is free software: you can redistribute it and/or modify
+##     it under the terms of the GNU General Public License as published by
+##     the Free Software Foundation, either version 3 of the License, or
+##     (at your option) any later version.
+## 
+##     genexpro4ceq8800 is distributed in the hope that it will be useful,
+##     but WITHOUT ANY WARRANTY; without even the implied warranty of
+##     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##     GNU General Public License for more details.
+## 
+##     You should have received a copy of the GNU General Public License
+##     along with genexpro4ceq8800. If not, see <http://www.gnu.org/licenses/>.
+
+## License hint
+echo -e "\n"
+echo -e "    genexpro4ceq8800  Copyright (C) 2015  Markus Haas"
+echo -e "    This program comes with ABSOLUTELY NO WARRANTY*."
+echo -e "    This is free software, and you are welcome to redistribute it"
+echo -e "    under certain conditions*.\n"
+echo -e "    *: See license agreement file /opt/genexpro4ceq8800/gpl-3.0.txt\n"
+echo -e "    Press enter to continue!\n"
+read
+
+for i in *.txt
+do
+OUT=`echo $i | sed -e 's/\.txt$/\.ceqfrag/'`
+mv $i $OUT
+done
+

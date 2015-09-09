@@ -1,0 +1,221 @@
+#!/usr/bin/perl -w
+use strict;
+use File::Copy qw(copy);
+
+## Copyright notice
+## Copyright 2015 Markus Haas
+
+## Statement of copying permission
+## This file is part of genexpro4ceq8800.
+## 
+##     genexpro4ceq8800 is free software: you can redistribute it and/or modify
+##     it under the terms of the GNU General Public License as published by
+##     the Free Software Foundation, either version 3 of the License, or
+##     (at your option) any later version.
+## 
+##     genexpro4ceq8800 is distributed in the hope that it will be useful,
+##     but WITHOUT ANY WARRANTY; without even the implied warranty of
+##     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##     GNU General Public License for more details.
+## 
+##     You should have received a copy of the GNU General Public License
+##     along with genexpro4ceq8800. If not, see <http://www.gnu.org/licenses/>.
+
+## License hint
+print "\n\n";
+print "    genexpro4ceq8800  Copyright (C) 2015  Markus Haas\n";
+print "    This program comes with ABSOLUTELY NO WARRANTY*.\n";
+print "    This is free software, and you are welcome to redistribute it\n";
+print "    under certain conditions*.\n";
+print "    *: See license agreement file /opt/genexpro4ceq8800/gpl-3.0.txt\n\n";
+print "    Press any key to continue!\n\n";
+<>;
+
+## Necessary files
+my $gexpdir = $ENV{"HOME"} . "/.genexpro4ceq8800"; ## "gexp" directory
+
+if ( ! -d $gexpdir ) { ## Create, if not exist
+  mkdir $gexpdir;
+}
+
+my $gexpfragtemplatefile = "/opt/genexpro4ceq8800/analysis/frags2detect.csv"; ## Template file with fragments to detect
+my $analysisparametertemplatefile = "/opt/genexpro4ceq8800/analysis/analysisparameter"; ## Template file with the analysis parameters to use
+my $targetfragfile = $ENV{"HOME"} . "/.genexpro4ceq8800/frags2detect.csv"; ## User file with fragments to detect
+my $analysisparameterfile = $ENV{"HOME"} . "/.genexpro4ceq8800/analysisparameter"; ## User file with the analysis parameters to use
+
+if ( ! -f $targetfragfile ) {
+  copy $gexpfragtemplatefile, $targetfragfile; ## Copy fragmentelist from template file if user file does not exist
+}
+
+if ( ! -f $analysisparameterfile ) {
+  copy $analysisparametertemplatefile, $analysisparameterfile; ## Copy from analysis parameter template file if user file does not exist
+}
+
+my $stdfragfile = "standardvalues"; ## Name of the file with the standard values
+
+## Read analysis parameter from file
+my %pars; ## Hash for the analysis parameters
+open (FH, "< $analysisparameterfile") or die "Can't open $analysisparameterfile for read: $!"; ## Load file with the analysis parameters
+while (<FH>) {
+  if ($_ =~ m/[^#]/){ ## Ignore comment lines beginning with "#"
+    $_ =~ s/\n//; ## Delete line break
+    (my $name, my $value) = split(/\t/, $_); ## Write parameters in hash
+    $pars{$name} = $value;
+  }
+}
+close FH or die "Cannot close $analysisparameterfile: $!";
+
+## Ask for RNA amount in gexp samples and check if the answer is a number
+my $mrna;
+print "\nWhat is the amount of RNA in your samples in ng?\n";
+chomp ($mrna = <>);
+
+if ( !($mrna =~ m/[0-9]+/)             # Contains at least one figure
+  || !($mrna =~ m/^[0-9]*\.?[0-9]*$/)  # Contains at most one decimal point 
+  || ($mrna =~ m/[^0-9\.]+/))          # Contains only figures and points
+{
+  print "Sorry, \"$mrna\" is not a valid input. Only figures - at least one - and at most one decimal point are allowed.\n";
+  exit;
+}
+
+## Read all ceqfrag files in the current directory
+my $dir = '.';
+my @files;
+my @stdfiles;
+opendir(DIR, $dir) or die $!;
+while (my $file = readdir(DIR)) {
+  if ($file =~ m/$stdfragfile/) {
+    push (@stdfiles, $_);
+  }
+  # We only want files
+  next unless (-f "$dir/$file");
+  # Use a regular expression to find files ending in .txt
+  next unless ($file =~ m/\.ceqfrag$/);
+  push (@files, $file);
+}
+closedir(DIR);
+
+## Open file with the standardregression values
+my @stdvalues = (); ## Array which contains the standardvalues
+if (scalar(@stdfiles) == 1) { ## Only read standardvalues if there is only but one file!!
+  open (FH, "< $stdfragfile") or die "Can't open $stdfragfile for read: $!";
+  while (<FH>) {
+    if ($_ =~ m/^[0-9]/) {
+      $_ =~ s/\n//;
+      push (@stdvalues, $_);
+    }
+  }
+  close FH or die "Cannot close $stdfragfile: $!";
+}
+
+## Open file with fragments to detect and read ids and default length in an array, respectively
+open (FH, "< $targetfragfile") or die "Can't open $targetfragfile for read: $!";
+my @targetfrags; ## Array for the targetfragments
+while (<FH>) {
+  if ($_ =~ m/^[0-9]/){
+    $_ =~ s/\n//g;
+    push (@targetfrags, $_);
+  }
+}
+close FH or die "Cannot close $targetfragfile: $!";
+
+## Open ceqfrag Files, take D4 labelled fragments and read length, peak height and peak area in a hash, respectively
+my @d4fragsnpa = (); ## Hash containing length, peakheight, pa and npa of all d4 labelled fragments
+
+foreach my $fafile (@files) {
+  my $outfile = $fafile; ## Ceq-ID = Filename
+  $outfile =~ s/^([^\/]+)\..+$/$1\.frag/; ## Remove extension to get Ceq-ID
+  my @d4frags = (); ## Array for the detected fragments
+  my @d4fragsinrange = (); ## Array for all d4 labelled fragments in the range of a target fragment
+  my @d4heights = ();
+  my $refpa;
+  my $npalimit;
+
+  open (FH, "< $fafile") or die "Can't open $fafile for read: $!";
+  my @row;
+  while (<FH>) {
+    if ($_ =~ m/\tD4\t/){
+      @row = split /\t/, $_;
+      push (@d4heights, $row[6]);
+      foreach my $counter (0..$#targetfrags) {  ## Check for each targetfragment if d4 labelled fragment matches
+	my @row2 = split /\t/, $targetfrags[$counter];
+	if (($row[5] > ($row2[1] - $pars{'range'})) && ($row[5] < ($row2[1] + $pars{'range'}))) { ## Take only fragments in range
+	  push (@d4fragsinrange, "$row2[0]\t$row[5]\t$row[7]\t$row[6]"); ## Push these to an array
+	}
+      }
+    }
+  }
+  foreach my $counter (0..$#targetfrags) { ## Check for all target fragments
+    my @row3 = split /\t/, $targetfrags[$counter];
+    if (grep(/^$row3[0]\t/, @d4fragsinrange)) { ## If the target fragment was detected
+      my @d4fragspec = grep (/^$row3[0]\t/, @d4fragsinrange);
+      my @d4fragspecsort = sort { (split '\t', $b)[2] <=> (split '\t', $a)[2] } @d4fragspec; ## Take only that fragment with the highest peak area
+      push (@d4frags, $d4fragspecsort[0]); ## Push that fragment to an array
+    }
+  }
+  if (grep(/^0/, @d4frags)) { ## Only continue if reference fragment could be detected
+    my @d4reffrag = grep (/^0\t/, @d4frags); ## Get the reference fragment
+    $refpa = (split '\t', $d4reffrag[0])[2];
+## Determine second highest peakheight
+    my @d4heightssort = sort { $b <=> $a } @d4heights; ## Sort the heights of the d4 labelled fragments
+    $npalimit = ($d4heightssort[1] * $pars{'peakheightthreshold'} * $pars{'heightpeaklowestratio'}) / $refpa; ## Calculate the limit from the second highest peak height
+  } else {
+    $refpa = "na";
+  }
+
+  close FH or die "Cannot close $fafile: $!";
+
+  ## Calculate amounts
+  open (MYFILE, ">$outfile");
+  print MYFILE "FRAGID\tLENGTH\tHEIGHT\tPA\tNPA\tAMOUNT\tAMOUNTLIMIT\n";
+  foreach my $counter (0..$#targetfrags) { ## Calculate for all fragments
+    my @row3 = split /\t/, $targetfrags[$counter];
+    if ($refpa ne "na") { ## Check if the reference frag was detected
+      if (grep(/^$row3[0]\t/, @d4frags)) { ## Check if the fragment was detected
+	my @d4fraghit = grep(/^$row3[0]/, @d4frags);
+	my $npa = (split '\t', $d4fraghit[0])[2] / $refpa;
+	if (grep(/^$row3[0]\t/, @stdvalues)) { ## Check if there is a standard value for the fragment
+	  my @stdfraghit = grep(/^$row3[0]/, @stdvalues);
+	  my $amountlimit = (exp((((log($npalimit)/log(10))-(split '\t', $stdfraghit[0])[4])/(split '\t', $stdfraghit[0])[2])*log(10)))/$mrna;
+	  my $amountfrag = (exp((((log($npa)/log(10))-(split '\t', $stdfraghit[0])[4])/(split '\t', $stdfraghit[0])[2])*log(10)))/$mrna;
+	  print MYFILE "$row3[0]\t";
+	  printf MYFILE ("%.2f", (split '\t', $d4fraghit[0])[1]);
+	  print MYFILE "\t", (split '\t', $d4fraghit[0])[3], "\t", (split '\t', $d4fraghit[0])[2], "\t";
+	  printf MYFILE ("%.5f", $npa);
+	  print MYFILE "\t";
+	  printf MYFILE ("%.5f", $amountfrag);
+	  print MYFILE "\t";
+	  printf MYFILE ("%.5f", $amountlimit);
+	  print MYFILE "\n";
+	} else {
+	  print MYFILE "$row3[0]\t";
+	  printf MYFILE ("%.2f", (split '\t', $d4fraghit[0])[1]);
+	  print MYFILE "\t", (split '\t', $d4fraghit[0])[3], "\t", (split '\t', $d4fraghit[0])[2], "\t";
+	  printf MYFILE ("%.5f", $npa);
+	  print MYFILE "\tna\tna\n";
+	}
+      } else {
+	if (grep(/^$row3[0]\t/, @stdvalues)) { ## Check if there is a standard value for the fragment
+	  my @stdfraghit = grep(/^$row3[0]\t/, @stdvalues);
+	  my $amountlimit = (exp((((log($npalimit)/log(10))-(split '\t', $stdfraghit[0])[4])/(split '\t', $stdfraghit[0])[2])*log(10)))/$mrna;
+	  print MYFILE "$row3[0]\tna\tna\tna\tna\tna\t";
+	  printf MYFILE ("%.5f", $amountlimit);
+	  print MYFILE "\n";
+	} else {
+	  print MYFILE "$row3[0]\tna\tna\tna\tna\tna\tna\n";
+	}
+      }
+    } else {
+      if (grep(/^$row3[0]\t/, @d4frags)) { ## Check if the fragment was detected
+	my @d4fraghit = grep(/^$row3[0]\t/, @d4frags);
+	print MYFILE "$row3[0]\t";
+	printf MYFILE ("%.2f", (split '\t', $d4fraghit[0])[1]);
+	print MYFILE "\t",(split '\t', $d4fraghit[0])[3],"\t",(split '\t', $d4fraghit[0])[2],"\tna\tna\tna\n";
+      } else {
+	print MYFILE "$row3[0]\tna\tna\tna\tna\tna\tna\n";
+      }
+    }
+  }
+  close (MYFILE);
+}
+

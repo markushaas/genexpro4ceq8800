@@ -1,0 +1,7 @@
+# This file includes some values which are necessary for genexpro4ceq8800 to
+# work. You can edit the values to your needs. See README for details to the
+# values. 
+#name	value
+range	0.8
+peakheightthreshold	0.01
+heightpeaklowestratio	1

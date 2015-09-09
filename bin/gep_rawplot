@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+use strict;
+use List::Util qw(first);
+
+## Copyright notice
+## Copyright 2015 Markus Haas
+
+## Statement of copying permission
+## This file is part of genexpro4ceq8800.
+## 
+##     genexpro4ceq8800 is free software: you can redistribute it and/or modify
+##     it under the terms of the GNU General Public License as published by
+##     the Free Software Foundation, either version 3 of the License, or
+##     (at your option) any later version.
+## 
+##     genexpro4ceq8800 is distributed in the hope that it will be useful,
+##     but WITHOUT ANY WARRANTY; without even the implied warranty of
+##     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##     GNU General Public License for more details.
+## 
+##     You should have received a copy of the GNU General Public License
+##     along with genexpro4ceq8800. If not, see <http://www.gnu.org/licenses/>.
+
+
+my @data; ## To store the data points of the raw file
+my $delta; ## Time of run
+my $datapoints; ## Datapoints of run
+
+## Open file given as first parameter to this programm
+open (FH, "< $ARGV[0]") or die "Can't open $ARGV[0] for read: $!";
+while (<FH>) {
+  if (m/Stop Time/) {
+    my @row = split /\t/, $_;
+    $delta = $row[4] - $row[2];
+  }
+
+  if (m/Number of Points/) {
+    my @row = split /\t/, $_;
+    $datapoints = $row[4];
+  }
+
+  if (/Separation/..eof){
+    if (m/^[0-9]/) {
+      my @row = split /\t/, $_;
+      push (@data, "$row[0]\t$row[2]\t$row[3]\t$row[4]\t$row[5]");
+  }}
+}
+close FH or die "Cannot close $ARGV[0]: $!";
+
+my $factor = $delta / $datapoints; ## Change datapoint to time
+my $title = $ARGV[0]; $title =~  s/.*(FA[0-9]+)\..*/$1/; ## Get ceq id
+
+## Print to gnuplot
+open(GNUPLOT, "| gnuplot -p") or die("cat failed\n");
+print GNUPLOT "reset\n";
+print GNUPLOT "if (strstrt(GPVAL_TERMINALS, 'wxt') > 0) set terminal wxt; else set terminal x11\n";
+print GNUPLOT "set xlabel 'time in min'\n";
+print GNUPLOT "set ylabel 'FI'\n";
+print GNUPLOT "set title '$title'\n";
+print GNUPLOT "plot '-' using ((\$1) * $factor ):5 with lines title 'D1' lc rgb '#ff0000', \\\n";
+print GNUPLOT "'-' using ((\$1) * $factor ):4 with lines title 'D2' lc rgb '#00ff00', \\\n";
+print GNUPLOT "'-' using ((\$1) * $factor ):3 with lines title 'D3' lc rgb '#00ffff', \\\n";
+print GNUPLOT "'-' using ((\$1) * $factor ):2 with lines title 'D4' lc rgb '#0000ff'\n";
+foreach (@data) {
+  print GNUPLOT "$_\n";
+}
+print GNUPLOT "e\n";
+foreach (@data) {
+  print GNUPLOT "$_\n";
+}
+print GNUPLOT "e\n";
+foreach (@data) {
+  print GNUPLOT "$_\n";
+}
+print GNUPLOT "e\n";
+foreach (@data) {
+  print GNUPLOT "$_\n";
+}
+print GNUPLOT "e\n";
+close (GNUPLOT);
+

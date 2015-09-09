@@ -1,0 +1,210 @@
+Genexpro4ceq8800 version 0.1
+============================
+
+This file is part of genexpro4ceq8800.
+
+    Genexpro4ceq8800 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Genexpro4ceq8800 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with genexpro4ceq8800.  If not, see <http://www.gnu.org/licenses/>.
+
+
+CONTENT
+
+I.   SYSTEM REQUIREMENTS
+II.  INSTALL INSTRUCTIONS
+III. BRIEF DESCRIPTION
+IV.  GEP_MAKESTD
+V.   GEP_CALCAMOUNT
+VI.  CONTACT INFORMATION
+
+
+I.   SYSTEM REQUIREMENTS
+
+Linux with perl and gnuplot (only necessairy for the scipts gep_fragplot and
+gep_rawplot)
+
+
+II.  INSTALL INSTRUCTIONS
+
+1. Download the zip archive from github:
+   URL
+2. Unzip the file: ``unzip FILE.zip''
+3. Copy as root the folder ``genexpro4ceq8800'' to ``/opt/''
+4. Your may - also as root - link the executables in the bin folder to a folder
+   in your $PATH e.g. ``/usr/bin/''
+
+
+III. BRIEF DESCRIPTION
+
+Genexpro4ceq8800 includes 6 scripts which may be useful to display data files
+from the ABSciex CEQ8800 genetic analysis system and to calculate transcript
+amounts from these data. The following scripts are included:
+
+    1. gep_rawplot
+        Plots the raw data from CEQ8800 run files. You need the software
+        ``gnuplot'' to use this program. To plot a raw file from CEQ8800
+        please export the appropriate file from the ``DATABASE'' module from
+        the CEQ8800 software. Choose under ``Save as type'' the option ``Text
+        (Tab Delimited) (*.txt)''.
+
+        Execute the program like: ``gep_rawplot MYDATA.txt''
+
+    2. gep_fragplot
+        Plots the fragment results from CEQ8800 fragment result files You need
+        the software ``gnuplot'' to use this program. To plot a fragment file
+        from CEQ8800 please export the appropriate file from the 
+        ``DATABASE'' module from the CEQ8800 software. Choose under ``Save 
+        as type'' the option ``Text (Tab Delimited) (*.txt)''. 
+
+        Execute the program like: ``gep_fragplot MYDATA.txt''
+
+    3. gep_renamefrag
+        Renames all *.txt files in a directory to *.ceqfrag. This extension will
+        be recognized by the programs gep_makestd and gep_calcamount.
+
+        Execute the program like: ``gep_renamefrag''
+
+    4. gep_renameraw
+        Renames all *.txt files in a directory to *.ceqraw. This may be helpful
+        to keep track of your files.
+
+    5. gep_makestd
+        Calculates the standard values for each fragment which should be 
+        analyzed with gene expression profiling. See section IV. for more
+        details.
+
+    6. gep_calcamount
+        Calculates the amount of each fragment which should be analyzed. See
+        section V. for more details.
+
+
+IV.  GEP_MAKESTD
+
+In order to calculate the amounts of each fragment which you are going to
+analyze you must have a ``standard curve''. This program calculates the standard
+values for each fragment which you are going to analyze. You need a folder with
+all fragment result files which should be used to calculate the standard values.
+These files have to be exported from the ``DATABASE'' module with the option
+``Text (Tab Delimited) (*.txt)''. Please rename all ``*.txt'' files to
+``*.ceqfrag''. You may use the program ``gep_renamefrag'' as described above.
+Additionally you need a file called ``amount.csv'' where you noticed how much
+RNA you added to each sample and the label of your fragment results file
+(without extension).  Please use the example inputdata files in the folder
+``/opt/genexpro4ceq8800/exampledata/gep_makestd/inputdata'' as a template. 
+
+As the program is looking for the appearance of each fragment which you want to
+analyze, you need a list of your fragments and the apparent run length in
+nucleotides. All these fragments are listed in the file ``frags2detect.csv''
+which has to be in your ``$HOME/.genexpro4ceq8800'' directory. Additionally you
+need a file with the analysis parameters called ``analysisparameter'' and which
+is also in your ``$HOME/.genexpro4ceq8800'' directory. You can either create the
+``.genexpro4ceq8800'' directory in your ``$HOME'' directory and copy the two
+files from ``/opt/genexpro4ceq8800/analysis/'' and edit them or execute the
+programm once, the ``.genexpro4ceq8800'' directory will be created and the
+files ``frags2detect.csv'' and ``analysisparameter'' will be copied to this
+directory. Afterwards you can edit the files to your needs and re-run the
+program. It is important, that the fragment with the id ``0'' is your reference
+fragment e.g. the KAN-R fragment from your ``GenomeLab GeXP Start Kit''. 
+
+During the calculation each file will be parsed for each fragment, respectively.
+Each fragment has to appear in the appropriate size range. This range is
+calculated from the expected run length noticed in the file
+``$HOME/.genexpro4ceq8800/frags2detect.csv''. The fragment is allowed to deviate
+at most the value which is notice as ``range'' in the file
+``$HOME/.genexpro4ceq8800/analysisparameter''. If more than one fragment is
+found within this size range, the one with the maximum peak height will be
+chosen. The peak area of all fragments of one sample will be normalized to the
+peak area of the reference fragment. This procedure results in a list with the
+normalized peak areas of each fragment found in each file. Now for each fragment
+the log of the normalized peak areas will assigned to the corresponding log of
+amount of RNA which was used for that sample and a linear regression will be
+calculated. As a result we will get for each fragment (``FRAGID'' in the output
+file) the slope and the y-intercept of the linear regression (``SLOPE'', ``YIC''
+in the output file, respectively). The slopes of each fragment will be
+arithmetically averaged (``AVSLOPE'' in the output file) and the linear
+regression will be calculated again based on average of all slopes. As a result
+we will get a new y-intercept (called ``YIC_AVSLOPE'' in the output file). All
+these data will be printed to a output file called ``standardvalues''. 
+
+
+V.   GEP_CALCAMOUNT
+
+With the help of the standard values stored in the file ``standardvalues'' from
+the program gep_makestd (see section IV. above) we can now calculate the amounts
+of fragments of sample data. The procedure is to a certain extent the same as
+mentioned above. You will also need the files ``frags2detect.csv'' and
+``analysisparameter'' in your ``$HOME/.genexpro4ceq8800'' directory. You should
+also create a directory and store the fragment result files from the CEQ8800 in
+it. Again, these files have to be exported from the ``DATABASE'' module with
+the option ``Text (Tab Delimited) (*.txt)''. Please rename all ``*.txt'' files
+to ``*.ceqfrag''. You may use the program ``gep_renamefrag'' as described above.
+Additionally you need the file with the standard values in the same directory.
+As an example, you may try the files in the folder
+``/opt/genexpro4ceq8800/exampledata/gep_makestd/inputdata''. Now you can execute
+the program just by entering the command ``gep_calcamount''. You will be asked
+for the amount of RNA which you used in your samples. Now the fragment result
+files will be parsed file per file for each fragment, respectively.  Each
+fragment has to appear in the appropriate size range. This range is calculated
+from the expected run length noticed in the file
+``$HOME/.genexpro4ceq8800/frags2detect.csv''. A fragment is allowed to deviate
+at most the value which is notice as ``range'' in the file
+``$HOME/.genexpro4ceq8800/analysisparameter''. If more than one fragment is
+found within this size range, the one with the maximum peak height will be
+chosen. The peak area of all fragments of one sample will be normalized to the
+peak area of the reference fragment. As a last step, the amount of a fragment is
+calculated according to the following formula:
+
+AMOUNT = (10**((log10(NPA) - YIC_AVSLOPE)/AVSLOPE))/RNA_AMOUNT
+
+where         NPA = normalized peak area of a certain fragment
+          AVSLOPE = the average slope of the standard curves (see section IV.)
+      YIC_AVSLOPE = the y-intercept of the regression based on the average slope
+                    (see section IV.)
+       RNA_AMOUNT = the amount of RNA in ng in your sample
+
+If in the respective size range no fragment could be detected the program
+calculates the detection limit. If the height of a fragment is too low it will
+not be added to the fragment result file from the CEQ8800 software (see the
+manual of the CEQ8800 for ``peak height threshold''). Only if a peak exceeds
+this ``peak height threshold'' it will be scored. The program gep_calcamount
+gets this value from the file ``$HOME/.genexpro4ceq8800/analysisparameter''
+(``peakheightthreshold''). The value should be the same as the setting in the
+``FRAGMENTS'' module of the CEQ8800 software. As the calculation of the
+amount is rather based on the peak area than on the peak height we need a
+conversion factor. This ist set empirically to ``1'' but can also be edited in
+the file ``$HOME/.genexpro4ceq8800/analysisparameter''
+(``heightpeaklowestratio''). Whit the help of these values we can estimate the
+peak area of a peak at the detection limit (i.e. peak area = conversion factor *
+peak height, peak height = peak height threshold) and calculate the amount of
+such a hypothetical fragment.  This value is called ``AMOUNTLIMIT''. For each
+input fragment data file the results of the calculation will be printed to an
+outputfile ``*.frag''. The following data will be printed for each fragment as a
+{tab} separated list:
+
+       FRAGID = The fragment id from the file
+                ``$HOME/.genexpro4ceq8800/frags2detect.csv''
+       LENGTH = The run length of the fragment
+       HEIGHT = The peak height of the fragment
+           PA = The peak area of the fragment
+          NPA = The normalized peak area (respective to the standard fragment
+                e.g. KAN-R-RNA)
+       AMOUNT = The calculated amount (see above)
+  AMOUNTLIMIT = The detection limit of the amount (see above)
+
+
+VI.  CONTACT INFORMATION
+
+If you have any problems or suggestions to the program genexpro4ceqq8800 please
+contact me. Contact information can be found under
+<http://www.ovgu.de/mahaas/contact>
+
+
