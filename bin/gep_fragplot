@@ -42,16 +42,16 @@ while (<FH>) {
 close FH or die "Cannot close $ARGV[0]: $!";
 
 ## Necessary files
-my $gexpdir = $ENV{"HOME"} . "/.expressprofiling"; ## "expressprofiling" directory
+my $gexpdir = $ENV{"HOME"} . "/.genexpro4ceq8800"; ## "expressprofiling" directory
 
 if ( ! -d $gexpdir ) { ## Create, if not exist
   mkdir $gexpdir;
 }
 
-my $gexpfragtemplatefile = "/opt/express_profiling/analysis/frags2detect.csv"; ## Template file with fragments to detect
-my $analysisparametertemplatefile = "/opt/express_profiling/analysis/analysisparameter"; ## Template file with the analysis parameters to use
-my $targetfragfile = $ENV{"HOME"} . "/.expressprofiling/frags2detect.csv"; ## User file with fragments to detect
-my $analysisparameterfile = $ENV{"HOME"} . "/.expressprofiling/analysisparameter"; ## User file with the analysis parameters to use
+my $gexpfragtemplatefile = "/opt/genexpro4ceq8800/analysis/frags2detect.csv"; ## Template file with fragments to detect
+my $analysisparametertemplatefile = "/opt/genexpro4ceq8800/analysis/analysisparameter"; ## Template file with the analysis parameters to use
+my $targetfragfile = $ENV{"HOME"} . "/.genexpro4ceq8800/frags2detect.csv"; ## User file with fragments to detect
+my $analysisparameterfile = $ENV{"HOME"} . "/.genexpro4ceq8800/analysisparameter"; ## User file with the analysis parameters to use
 
 if ( ! -f $targetfragfile ) {
   copy $gexpfragtemplatefile, $targetfragfile; ## Copy fragmentelist from template file if user file does not exist

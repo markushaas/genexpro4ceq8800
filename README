@@ -35,10 +35,11 @@ gep_rawplot)
 
 II.  INSTALL INSTRUCTIONS
 
-1. Download the zip archive from github:
-   URL
-2. Unzip the file: ``unzip FILE.zip''
-3. Copy as root the folder ``genexpro4ceq8800'' to ``/opt/''
+1. Download the tarball from github:
+   ``wget https://github.com/markushaas/genexpro4ceq8800/archive/master.tar.gz''
+2. Generate the target directory as root: ``mkdir /opt/genexpro4ceq8800''
+3. Extract the tarball to the target directory as root: 
+   ``tar xvf master.tar.gz -C /opt/genexpro4ceq8800 --strip-components 1''
 4. Your may - also as root - link the executables in the bin folder to a folder
    in your $PATH e.g. ``/usr/bin/''
 

@@ -1,8 +1,10 @@
 # This file includes all the fragments which should be recognized by
-# genexpro4ceq8800. Of course you can adapt the list to your needs. The
-# ``frag_id'' is a unique numeric identifier for each fragment. The fragment
-# with the number ``0'' has to be the one which serves as the reference
-# fragment. See README for more details.
+# genexpro4ceq8800. The fragments listed here are example fragments. Use them to
+# check the program with the example files in the directory
+# ``/opt/genexpro4ceq8800/exampledata/''. Of course you have to adapt the list
+# to your needs. The ``frag_id'' is a unique numeric identifier for each
+# fragment. The fragment with the number ``0'' has to be the one which serves as
+# the reference fragment. See README for more details.
 #frag_id	apparent run length in nucleotides
 0	324.10
 1	114.40
