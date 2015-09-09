@@ -40,7 +40,7 @@ II.  INSTALL INSTRUCTIONS
 2. Generate the target directory as root: ``mkdir /opt/genexpro4ceq8800''
 3. Extract the tarball to the target directory as root: 
    ``tar xvf master.tar.gz -C /opt/genexpro4ceq8800 --strip-components 1''
-4. Your may - also as root - link the executables in the bin folder to a folder
+4. You may - also as root - link the executables in the bin folder to a folder
    in your $PATH e.g. ``/usr/bin/''
 
 
