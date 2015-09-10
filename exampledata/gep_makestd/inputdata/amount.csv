@@ -1,3 +1,12 @@
+# This is a {TAB} separated list of CEQ8800 run IDs and the amount of RNA which
+# was used to prepare the respective samples. The CEQ8800 run IDs have to be
+# identical to the name of the respective run files but without extension. If
+# the exported file (see README for more information) for example has the file
+# name ``MYDATA.txt'' the CEQ8800 run ID would be ``MYDATA''. Please check that
+# each ID is unique. The amount of RNA has to be entered in ng. Only figures and
+# at most one ``.'' as decimal point are allowed.
+#
+# CEQ8800 run ID	amount of RNA in ng per sample
 FA013288	128
 FA013289	64
 FA013290	32

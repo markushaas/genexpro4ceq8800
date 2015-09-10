@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
+use Cwd 'abs_path';
 use File::Copy qw(copy);
 
 ## Copyright notice
@@ -21,14 +22,18 @@ use File::Copy qw(copy);
 ##     You should have received a copy of the GNU General Public License
 ##     along with genexpro4ceq8800. If not, see <http://www.gnu.org/licenses/>.
 
+## Get installation path
+my $genexpro4ceq_base = abs_path($0);
+$genexpro4ceq_base =~ s/\/bin\/gep_calcamount$//;
+
 ## License hint
 print "\n\n";
 print "    genexpro4ceq8800  Copyright (C) 2015  Markus Haas\n";
 print "    This program comes with ABSOLUTELY NO WARRANTY*.\n";
 print "    This is free software, and you are welcome to redistribute it\n";
 print "    under certain conditions*.\n";
-print "    *: See license agreement file /opt/genexpro4ceq8800/gpl-3.0.txt\n\n";
-print "    Press any key to continue!\n\n";
+print "    *: See license agreement file $genexpro4ceq_base/gpl-3.0.txt\n\n";
+print "    Press enter to continue!\n\n";
 <>;
 
 ## Necessary files
@@ -38,8 +43,8 @@ if ( ! -d $gexpdir ) { ## Create, if not exist
   mkdir $gexpdir;
 }
 
-my $gexpfragtemplatefile = "/opt/genexpro4ceq8800/analysis/frags2detect.csv"; ## Template file with fragments to detect
-my $analysisparametertemplatefile = "/opt/genexpro4ceq8800/analysis/analysisparameter"; ## Template file with the analysis parameters to use
+my $gexpfragtemplatefile = $genexpro4ceq_base . "/analysis/frags2detect.csv"; ## Template file with fragments to detect
+my $analysisparametertemplatefile = $genexpro4ceq_base . "/analysis/analysisparameter"; ## Template file with the analysis parameters to use
 my $targetfragfile = $ENV{"HOME"} . "/.genexpro4ceq8800/frags2detect.csv"; ## User file with fragments to detect
 my $analysisparameterfile = $ENV{"HOME"} . "/.genexpro4ceq8800/analysisparameter"; ## User file with the analysis parameters to use
 

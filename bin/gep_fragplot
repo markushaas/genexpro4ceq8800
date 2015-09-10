@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
+use Cwd 'abs_path';
 use List::Util qw(first);
 use File::Copy qw(copy);
 
@@ -26,6 +27,10 @@ use File::Copy qw(copy);
 my @d4frags;
 my @stdfrags;
 
+## Get installation path
+my $genexpro4ceq_base = abs_path($0);
+$genexpro4ceq_base =~ s/\/bin\/gep_fragplot$//;
+
 ## Open file given as first parameter to this programm
 open (FH, "< $ARGV[0]") or die "Can't open $ARGV[0] for read: $!";
 while (<FH>) {
@@ -48,8 +53,8 @@ if ( ! -d $gexpdir ) { ## Create, if not exist
   mkdir $gexpdir;
 }
 
-my $gexpfragtemplatefile = "/opt/genexpro4ceq8800/analysis/frags2detect.csv"; ## Template file with fragments to detect
-my $analysisparametertemplatefile = "/opt/genexpro4ceq8800/analysis/analysisparameter"; ## Template file with the analysis parameters to use
+my $gexpfragtemplatefile = $genexpro4ceq_base . "/analysis/frags2detect.csv"; ## Template file with fragments to detect
+my $analysisparametertemplatefile = $genexpro4ceq_base . "/analysis/analysisparameter"; ## Template file with the analysis parameters to use
 my $targetfragfile = $ENV{"HOME"} . "/.genexpro4ceq8800/frags2detect.csv"; ## User file with fragments to detect
 my $analysisparameterfile = $ENV{"HOME"} . "/.genexpro4ceq8800/analysisparameter"; ## User file with the analysis parameters to use
 
@@ -94,27 +99,28 @@ while (<FH>) {
 close FH or die "Cannot close $targetfragfile: $!";
 
 ## Get the CEQ8800 ID
-my $faid = $ARGV[0];
-$faid =~ s/.*\/([^\/]+)\..+$/$1/;
+my $title = $ARGV[0]; $title =~ s/^.*\/([^\/]+)$/$1/; $title =~ s/(.*)\.[^\.]+$/$1/;
 
 ## Print result to gnuplot
 open(GNUPLOT, "| gnuplot -p") or die("cat failed\n");
 print GNUPLOT "reset\n";
 print GNUPLOT "if (strstrt(GPVAL_TERMINALS, 'wxt') > 0) set terminal wxt; else set terminal x11\n";
 print GNUPLOT "set grid\n";
-print GNUPLOT "set title 'D4-labelled Fragments of $faid'\n";
+print GNUPLOT "set title 'D4-Labelled Fragments of CEQ8800 Run ID $title'\n";
 print GNUPLOT "set xrange [50:450]\n";
-print GNUPLOT "set xlabel  'Fragment Length in Nucleotides'\n";
+print GNUPLOT "set xlabel  'Size in Nucleotides'\n";
 print GNUPLOT "set ylabel  'Peak Area'\n";
-print GNUPLOT "set obj rect from ".($reffrag - 0.8).", graph 0 to ".($reffrag + 0.8).", graph 1 fc rgb \"#ff0000\" fs solid 0.25 noborder\n";
+print GNUPLOT "set obj rect from ".($reffrag - $pars{'range'}).", graph 0 to ".($reffrag + $pars{'range'}).", graph 1 fc rgb \"#ffbbbb\" fs noborder\n";
 
 foreach (@sollfrags) {
-print GNUPLOT "set obj rect from ".($_ - $pars{'range'}).", graph 0 to ".($_ + $pars{'range'}).", graph 1 fc rgb \"#000000\" fs solid 0.25 noborder\n";
+print GNUPLOT "set obj rect from ".($_ - $pars{'range'}).", graph 0 to ".($_ + $pars{'range'}).", graph 1 fc rgb \"#bbbbbb\" fs noborder\n";
 }
 
 print GNUPLOT "plot \\\n";
-print GNUPLOT "'-' using 1:2 with impulses lw 3 lc rgb \"#ff0000\" title 'STD', \\\n";
-print GNUPLOT "'-' using 1:2 with impulses lw 3 lc rgb \"#0000ff\" title 'D4'\n";
+print GNUPLOT "'-' using 1:2 with impulses lw 3 lc rgb \"#ff0000\" title 'Size Standard', \\\n";
+print GNUPLOT "'-' using 1:2 with impulses lw 3 lc rgb \"#0000ff\" title 'D4 Labelled', \\\n";
+print GNUPLOT "NaN with impulses lw 6 lc rgb \"#ffbbbb\" title 'Size Range of Reference Fragment', \\\n";
+print GNUPLOT "NaN with impulses lw 6 lc rgb \"#bbbbbb\" title 'Size Range of Expected Fragments'\n";
 
 foreach (@stdfrags) {
   print GNUPLOT "$_\n";

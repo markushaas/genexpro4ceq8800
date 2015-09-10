@@ -20,13 +20,16 @@
 ##     You should have received a copy of the GNU General Public License
 ##     along with genexpro4ceq8800. If not, see <http://www.gnu.org/licenses/>.
 
+## Get Script Path
+SCRIPTPATH=`readlink -f $0 | sed 's/\/bin\/gep_renamefrag//'`
+
 ## License hint
 echo -e "\n"
 echo -e "    genexpro4ceq8800  Copyright (C) 2015  Markus Haas"
 echo -e "    This program comes with ABSOLUTELY NO WARRANTY*."
 echo -e "    This is free software, and you are welcome to redistribute it"
 echo -e "    under certain conditions*.\n"
-echo -e "    *: See license agreement file /opt/genexpro4ceq8800/gpl-3.0.txt\n"
+echo -e "    *: See license agreement file $SCRIPTPATH/gpl-3.0.txt\n"
 echo -e "    Press enter to continue!\n"
 read
 

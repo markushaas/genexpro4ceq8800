@@ -37,11 +37,12 @@ II.  INSTALL INSTRUCTIONS
 
 1. Download the tarball from github:
    ``wget https://github.com/markushaas/genexpro4ceq8800/archive/master.tar.gz''
-2. Generate the target directory as root: ``mkdir /opt/genexpro4ceq8800''
-3. Extract the tarball to the target directory as root: 
+2. Generate a target directory. For system wide installation preferrably in
+   ``opt'' (as root): e.g. (as root) ``mkdir /opt/genexpro4ceq8800''
+3. Extract the tarball to the target directory (as root): e.g. 
    ``tar xvf master.tar.gz -C /opt/genexpro4ceq8800 --strip-components 1''
-4. You may - also as root - link the executables in the bin folder to a folder
-   in your $PATH e.g. ``/usr/bin/''
+4. You may - also as root - make symbolic links to the executables in the
+   ``bin'' folder to a folder in your $PATH e.g. ``/usr/bin/''
 
 
 III. BRIEF DESCRIPTION
@@ -60,11 +61,22 @@ amounts from these data. The following scripts are included:
         Execute the program like: ``gep_rawplot MYDATA.txt''
 
     2. gep_fragplot
-        Plots the fragment results from CEQ8800 fragment result files You need
+        Plots the fragment results from CEQ8800 fragment result files. You need
         the software ``gnuplot'' to use this program. To plot a fragment file
         from CEQ8800 please export the appropriate file from the 
         ``DATABASE'' module from the CEQ8800 software. Choose under ``Save 
-        as type'' the option ``Text (Tab Delimited) (*.txt)''. 
+        as type'' the option ``Text (Tab Delimited) (*.txt)''. Additionally, for
+        each fragment listet in the file
+        ``$HOME/.genexpro4ceq8800/frags2detect.csv'' a box is drawn where the
+        fragments are expected to appear. The width of the box (i.e. the range
+        where a certain fragment has to appear to be taken into account by the
+        program (see also IV. and V. below) is taken from the file
+        ``$HOME/.genexpro4ceq8800/analysisparameter''. You can either create the
+        ``.genexpro4ceq8800'' directory in your ``$HOME'' directory and copy the
+        two files from ``/INSTALLATION PATH/analysis/'' and edit them or execute
+        the program once, the ``.genexpro4ceq8800'' directory will be created
+        and the files ``frags2detect.csv'' and ``analysisparameter'' will be
+        copied to this directory.
 
         Execute the program like: ``gep_fragplot MYDATA.txt''
 
@@ -100,7 +112,7 @@ These files have to be exported from the ``DATABASE'' module with the option
 Additionally you need a file called ``amount.csv'' where you noticed how much
 RNA you added to each sample and the label of your fragment results file
 (without extension).  Please use the example inputdata files in the folder
-``/opt/genexpro4ceq8800/exampledata/gep_makestd/inputdata'' as a template. 
+``INSTALLATION PATH/exampledata/gep_makestd/inputdata'' as a template. 
 
 As the program is looking for the appearance of each fragment which you want to
 analyze, you need a list of your fragments and the apparent run length in
@@ -109,8 +121,8 @@ which has to be in your ``$HOME/.genexpro4ceq8800'' directory. Additionally you
 need a file with the analysis parameters called ``analysisparameter'' and which
 is also in your ``$HOME/.genexpro4ceq8800'' directory. You can either create the
 ``.genexpro4ceq8800'' directory in your ``$HOME'' directory and copy the two
-files from ``/opt/genexpro4ceq8800/analysis/'' and edit them or execute the
-programm once, the ``.genexpro4ceq8800'' directory will be created and the
+files from ``INSTALLATION PATH/analysis/'' and edit them or execute the
+program once, the ``.genexpro4ceq8800'' directory will be created and the
 files ``frags2detect.csv'' and ``analysisparameter'' will be copied to this
 directory. Afterwards you can edit the files to your needs and re-run the
 program. It is important, that the fragment with the id ``0'' is your reference
@@ -150,7 +162,7 @@ the option ``Text (Tab Delimited) (*.txt)''. Please rename all ``*.txt'' files
 to ``*.ceqfrag''. You may use the program ``gep_renamefrag'' as described above.
 Additionally you need the file with the standard values in the same directory.
 As an example, you may try the files in the folder
-``/opt/genexpro4ceq8800/exampledata/gep_makestd/inputdata''. Now you can execute
+``INSTALLATION PATH/exampledata/gep_makestd/inputdata''. Now you can execute
 the program just by entering the command ``gep_calcamount''. You will be asked
 for the amount of RNA which you used in your samples. Now the fragment result
 files will be parsed file per file for each fragment, respectively.  Each
