@@ -2,7 +2,7 @@
 ## renames all *.txt files in a directory to *.ceqfrag
 
 ## Copyright notice
-## Copyright 2015 Markus Haas
+## Copyright 2015 - 2017 Markus Haas
 
 ## Statement of copying permission
 ## This file is part of genexpro4ceq8800.
@@ -25,7 +25,7 @@ SCRIPTPATH=`readlink -f $0 | sed 's/\/bin\/gep_renamefrag//'`
 
 ## License hint
 echo -e "\n"
-echo -e "    genexpro4ceq8800  Copyright (C) 2015  Markus Haas"
+echo -e "    genexpro4ceq8800  Copyright (C) 2015 - 2017  Markus Haas"
 echo -e "    This program comes with ABSOLUTELY NO WARRANTY*."
 echo -e "    This is free software, and you are welcome to redistribute it"
 echo -e "    under certain conditions*.\n"

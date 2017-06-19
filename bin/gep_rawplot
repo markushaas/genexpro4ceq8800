@@ -3,7 +3,7 @@ use strict;
 use List::Util qw(first);
 
 ## Copyright notice
-## Copyright 2015 Markus Haas
+## Copyright 2015 - 2017 Markus Haas
 
 ## Statement of copying permission
 ## This file is part of genexpro4ceq8800.
@@ -53,16 +53,17 @@ my $factor = $delta / $datapoints; ## Change datapoint to time
 my $title = $ARGV[0]; $title =~ s/^.*\/([^\/]+)$/$1/; $title =~ s/(.*)\.[^\.]+$/$1/;
 
 ## Print to gnuplot
-open(GNUPLOT, "| gnuplot -p") or die("cat failed\n");
+open(GNUPLOT, "| gnuplot") or die("cat failed\n");
 print GNUPLOT "reset\n";
-print GNUPLOT "if (strstrt(GPVAL_TERMINALS, 'wxt') > 0) set terminal wxt; else set terminal x11\n";
+print GNUPLOT "if (strstrt(GPVAL_TERMINALS, 'qt') > 0) set terminal qt; else set terminal x11 font \"helvetica,12,medium\"\n";
+print GNUPLOT "set grid\n";
 print GNUPLOT "set xlabel 'Run time in min'\n";
 print GNUPLOT "set ylabel 'Relative Fluorescence Activity'\n";
 print GNUPLOT "set title 'CEQ8800 ID: $title'\n";
-print GNUPLOT "plot '-' using ((\$1) * $factor ):5 with lines title 'D1' lc rgb '#ff0000', \\\n";
-print GNUPLOT "'-' using ((\$1) * $factor ):4 with lines title 'D2' lc rgb '#00ff00', \\\n";
-print GNUPLOT "'-' using ((\$1) * $factor ):3 with lines title 'D3' lc rgb '#00ffff', \\\n";
-print GNUPLOT "'-' using ((\$1) * $factor ):2 with lines title 'D4' lc rgb '#0000ff'\n";
+print GNUPLOT "plot '-' using ((\$1) * $factor ):5 with l lc rgb '#ff0000' title 'D1', \\\n";
+print GNUPLOT "'-' using ((\$1) * $factor ):4 with l lc rgb '#00ff00' title 'D2', \\\n";
+print GNUPLOT "'-' using ((\$1) * $factor ):3 with l lc rgb '#00ffff' title 'D3', \\\n";
+print GNUPLOT "'-' using ((\$1) * $factor ):2 with l lc rgb '#0000ff' title 'D4'\n";
 foreach (@data) {
   print GNUPLOT "$_\n";
 }
@@ -79,5 +80,6 @@ foreach (@data) {
   print GNUPLOT "$_\n";
 }
 print GNUPLOT "e\n";
+print GNUPLOT "pause mouse close\n";
 close (GNUPLOT);
 

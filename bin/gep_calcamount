@@ -4,7 +4,7 @@ use Cwd 'abs_path';
 use File::Copy qw(copy);
 
 ## Copyright notice
-## Copyright 2015 Markus Haas
+## Copyright 2015 - 2017 Markus Haas
 
 ## Statement of copying permission
 ## This file is part of genexpro4ceq8800.
@@ -28,7 +28,7 @@ $genexpro4ceq_base =~ s/\/bin\/gep_calcamount$//;
 
 ## License hint
 print "\n\n";
-print "    genexpro4ceq8800  Copyright (C) 2015  Markus Haas\n";
+print "    genexpro4ceq8800  Copyright (C) 2015 - 2017  Markus Haas\n";
 print "    This program comes with ABSOLUTELY NO WARRANTY*.\n";
 print "    This is free software, and you are welcome to redistribute it\n";
 print "    under certain conditions*.\n";

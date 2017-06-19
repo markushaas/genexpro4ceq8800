@@ -5,7 +5,7 @@ use List::Util qw(first);
 use File::Copy qw(copy);
 
 ## Copyright notice
-## Copyright 2015 Markus Haas
+## Copyright 2015 - 2017 Markus Haas
 
 ## Statement of copying permission
 ## This file is part of genexpro4ceq8800.
@@ -102,9 +102,9 @@ close FH or die "Cannot close $targetfragfile: $!";
 my $title = $ARGV[0]; $title =~ s/^.*\/([^\/]+)$/$1/; $title =~ s/(.*)\.[^\.]+$/$1/;
 
 ## Print result to gnuplot
-open(GNUPLOT, "| gnuplot -p") or die("cat failed\n");
+open(GNUPLOT, "| gnuplot") or die("cat failed\n");
 print GNUPLOT "reset\n";
-print GNUPLOT "if (strstrt(GPVAL_TERMINALS, 'wxt') > 0) set terminal wxt; else set terminal x11\n";
+print GNUPLOT "if (strstrt(GPVAL_TERMINALS, 'qt') > 0) set terminal qt; else set terminal x11 font \"helvetica,12,medium\"\n";
 print GNUPLOT "set grid\n";
 print GNUPLOT "set title 'D4-Labelled Fragments of CEQ8800 Run ID $title'\n";
 print GNUPLOT "set xrange [50:450]\n";
@@ -133,6 +133,7 @@ foreach (@d4frags) {
 }
 
 print GNUPLOT "e\n";
+print GNUPLOT "pause mouse close\n";
 
 close (GNUPLOT);
 
