@@ -47,8 +47,9 @@ while (<FH>) {
 }
 close FH or die "Cannot close $ARGV[0]: $!";
 
-my $factor = $delta / $datapoints; ## Change datapoint to time
+my $factor = $delta / ($datapoints - 1); ## Change datapoint to time
 
+##print "$delta\t$datapoints\t$factor\n";
 ## Get the CEQ8800 ID
 my $title = $ARGV[0]; $title =~ s/^.*\/([^\/]+)$/$1/; $title =~ s/(.*)\.[^\.]+$/$1/;
 
@@ -60,10 +61,10 @@ print GNUPLOT "set grid\n";
 print GNUPLOT "set xlabel 'Run time in min'\n";
 print GNUPLOT "set ylabel 'Relative Fluorescence Activity'\n";
 print GNUPLOT "set title 'CEQ8800 ID: $title'\n";
-print GNUPLOT "plot '-' using ((\$1) * $factor ):5 with l lc rgb '#ff0000' title 'D1', \\\n";
-print GNUPLOT "'-' using ((\$1) * $factor ):4 with l lc rgb '#00ff00' title 'D2', \\\n";
-print GNUPLOT "'-' using ((\$1) * $factor ):3 with l lc rgb '#00ffff' title 'D3', \\\n";
-print GNUPLOT "'-' using ((\$1) * $factor ):2 with l lc rgb '#0000ff' title 'D4'\n";
+print GNUPLOT "plot '-' using ((((\$1)-1) * $factor) -1 ):5 with l lc rgb '#ff0000' title 'D1', \\\n";
+print GNUPLOT "'-' using ((((\$1)-1) * $factor) -1 ):4 with l lc rgb '#00ff00' title 'D2', \\\n";
+print GNUPLOT "'-' using ((((\$1)-1) * $factor) -1 ):3 with l lc rgb '#00ffff' title 'D3', \\\n";
+print GNUPLOT "'-' using ((((\$1)-1) * $factor) -1 ):2 with l lc rgb '#0000ff' title 'D4'\n";
 foreach (@data) {
   print GNUPLOT "$_\n";
 }
